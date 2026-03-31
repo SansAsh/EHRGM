@@ -1,49 +1,25 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Élèves</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <meta charset="UTF-8" />
+    <title>Accueil - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
-    <header>
-        <h1>Gestion des Élèves</h1>
-        <p>Interface moderne avec FastAPI</p>
-    </header>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Dashboard</h2>
+            <button id="btn-accueil" class="sidebar-btn">Accueil</button>
+            <button id="btn-eleves" class="sidebar-btn">Élèves</button>
+        </nav>
 
-    <main>
-        <!-- Section Ajouter un élève -->
-        <section class="card">
-            <h2>Ajouter un élève</h2>
-            <div class="form-group">
-                <input type="text" id="nom" placeholder="Nom">
-                <input type="email" id="email" placeholder="Email">
-                <input type="number" id="age" placeholder="Age">
-                <input type="number" id="promo" placeholder="ID Promotion">
+        <main class="main-content">
+            <h1>Bienvenue sur le Dashboard</h1>
+            <div id="content-area">
+                <p>Cliquez sur "Élèves" pour gérer la liste des élèves.</p>
             </div>
-            <button id="btn-ajouter">Ajouter</button>
-            <p id="message" class="message"></p>
-        </section>
-
-        <!-- Section Liste des élèves -->
-        <section class="card">
-            <h2>Liste des élèves</h2>
-            <button id="btn-liste">Afficher tous les élèves</button>
-            <div id="liste-eleves" class="list"></div>
-        </section>
-
-        <!-- Section Bonnes notes -->
-        <section class="card">
-            <h2>Élèves avec bonnes notes</h2>
-            <button id="btn-bonne-notes">Afficher bonnes notes</button>
-            <div id="liste-bonnes-notes" class="list"></div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 Gestion Élèves</p>
-    </footer>
+        </main>
+    </div>
 
     <script src="/static/js/index.js"></script>
 </body>

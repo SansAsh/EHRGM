@@ -1,60 +1,35 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const btnEleves = document.getElementById("btn-eleves");
+const btnAccueil = document.getElementById("btn-accueil");
+const contentArea = document.getElementById("content-area");
 
-// Ajouter un élève
-document.getElementById("btn-ajouter").addEventListener("click", async () => {
-    const nom = document.getElementById("nom").value;
-    const email = document.getElementById("email").value;
-    const age = parseInt(document.getElementById("age").value);
-    const promo = parseInt(document.getElementById("promo").value);
-    const message = document.getElementById("message");
-
-    if (!nom || !email || !age || !promo) {
-        message.textContent = "Merci de remplir tous les champs !";
-        message.style.color = "red";
-        return;
-    }
-
-    const res = await fetch(`${BASE_URL}/eleve/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nom, email, age, promotion_id: promo })
-    });
-    const data = await res.json();
-    message.textContent = data.message;
-    message.style.color = "green";
-
-    document.getElementById("nom").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("age").value = "";
-    document.getElementById("promo").value = "";
+btnAccueil.addEventListener("click", () => {
+    contentArea.innerHTML = `<p>Cliquez sur "Élèves" pour gérer la liste des élèves.</p>`;
 });
 
-// Afficher tous les élèves
-document.getElementById("btn-liste").addEventListener("click", async () => {
-    const res = await fetch(`${BASE_URL}/eleve/`);
-    const data = await res.json();
-    const liste = document.getElementById("liste-eleves");
-    liste.innerHTML = "";
+btnEleves.addEventListener("click", async () => {
+    // Charge le template partiel de la liste élèves
+    const eleveTemplate = await fetch('/eleve/template').then(res => res.text());
+    contentArea.innerHTML = eleveTemplate;
 
-    data.forEach(eleve => {
-        const div = document.createElement("div");
-        div.className = "list-item";
-        div.textContent = `ID: ${eleve.id} | Nom: ${eleve.nom} | Age: ${eleve.age}`;
-        liste.appendChild(div);
+    // Charge la liste des élèves via API
+    loadEleves();
+
+    // Configure bouton Ajouter
+    document.getElementById("btn-ajouter").addEventListener("click", () => {
+        alert("Ici tu pourras afficher le formulaire d'ajout !");
     });
 });
 
-// Afficher les bonnes notes
-document.getElementById("btn-bonne-notes").addEventListener("click", async () => {
-    const res = await fetch(`${BASE_URL}/eleve/bonne_notes`);
-    const data = await res.json();
-    const liste = document.getElementById("liste-bonnes-notes");
-    liste.innerHTML = "";
+async function loadEleves() {
+    const res = await fetch("/eleve/");
+    const eleves = await res.json();
 
-    data.forEach(eleve => {
-        const div = document.createElement("div");
-        div.className = "list-item";
-        div.textContent = `${eleve.nom} | Moyenne: ${eleve.moyenne}`;
-        liste.appendChild(div);
+    const ul = document.getElementById("eleves-list");
+    ul.innerHTML = "";
+
+    eleves.forEach(eleve => {
+        const li = document.createElement("li");
+        li.textContent = `ID: ${eleve.id} | Nom: ${eleve.nom} | Age: ${eleve.age}`;
+        ul.appendChild(li);
     });
-});
+}

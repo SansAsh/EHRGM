@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Élèves</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Bienvenue sur le Dashboard des élèves</h1>
+
+    <div class="dashboard">
+        <div class="form-section">
+            <h2>Ajouter / Modifier un élève</h2>
+            <input type="hidden" id="eleve_id">
+            <input type="text" id="nom" placeholder="Nom">
+            <input type="email" id="email" placeholder="Email">
+            <input type="number" id="age" placeholder="Age">
+            <input type="number" id="promo" placeholder="ID Promotion">
+            <button id="btn-add">Ajouter</button>
+            <button id="btn-update">Modifier</button>
+        </div>
+
+        <div class="list-section">
+            <h2>Liste des élèves</h2>
+            <ul id="liste-eleves">
+                {% for eleve in eleves %}
+                <li>
+                    ID: {{ eleve.id }} | Nom: {{ eleve.nom }} | Age: {{ eleve.age }}
+                    <button class="btn-delete" data-id="{{ eleve.id }}">Supprimer</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
