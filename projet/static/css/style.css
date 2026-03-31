@@ -1,0 +1,82 @@
+/* Reset & font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    line-height: 1.6;
+}
+header {
+    text-align: center;
+    padding: 2rem;
+    background-color: #3f51b5;
+    color: white;
+}
+header h1 {
+    font-size: 2rem;
+}
+main {
+    padding: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+}
+.card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    width: 300px;
+    flex: 1 1 300px;
+}
+.card h2 {
+    margin-bottom: 1rem;
+    color: #3f51b5;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+input {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+button {
+    padding: 0.7rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #3f51b5;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #303f9f;
+}
+.list {
+    margin-top: 1rem;
+}
+.list-item {
+    background-color: #e8eaf6;
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+.message {
+    margin-top: 0.5rem;
+    font-weight: bold;
+}
+footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    color: #666;
+}

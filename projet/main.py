@@ -1,31 +1,31 @@
 import os
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
+# Import des controllers
+from controllers.front_controller import router as front_router
+
+# Import des services
 from services.eleves_service import *
 from services.notes_service import *
 from services.profs_service import *
 
-app = FastAPI()
-
-# Montée des fichiers statiques
-current_dir = os.path.dirname(os.path.abspath(__file__))
-asset_dir = os.path.abspath(os.path.join(current_dir, "..", "asset"))
-if not os.path.exists(asset_dir):
-    raise RuntimeError(f"Dossier asset introuvable : {asset_dir}")
-
-app.mount("/static", StaticFiles(directory=asset_dir), name="static")
-
-# Endpoint racine
-@app.get("/", response_class=HTMLResponse)
-def home():
-    index_path = os.path.abspath(os.path.join(current_dir, "..", "templates", "index.html"))
-    with open(index_path, "r", encoding="utf-8") as f:
-        return f.read()
+app = FastAPI(title="Gestion Élèves - FastAPI")
 
 # ----------------------------
-# Endpoints API
+# Montée des fichiers statiques
+# ----------------------------
+current_dir = os.path.dirname(os.path.abspath(__file__))
+static_dir = os.path.join(current_dir, "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# ----------------------------
+# Routes front
+# ----------------------------
+app.include_router(front_router)
+
+# ----------------------------
+# Routes API
 # ----------------------------
 @app.get("/eleve/")
 def route_all_eleves():

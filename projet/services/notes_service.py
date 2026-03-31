@@ -1,4 +1,4 @@
-from database import get_connection
+from api.database import get_connection
 from collections import defaultdict
 
 def get_notes_by_eleve(eleve_id):

@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion École - FastAPI</title>
+    <title>Gestion des Élèves</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <header>
-        <h1>🎓 Gestion des Élèves</h1>
+        <h1>Gestion des Élèves</h1>
+        <p>Interface moderne avec FastAPI</p>
     </header>
 
     <main>
@@ -20,28 +21,28 @@
                 <input type="email" id="email" placeholder="Email">
                 <input type="number" id="age" placeholder="Age">
                 <input type="number" id="promo" placeholder="ID Promotion">
-                <button id="btn-ajouter">Ajouter</button>
             </div>
-            <p id="message"></p>
+            <button id="btn-ajouter">Ajouter</button>
+            <p id="message" class="message"></p>
         </section>
 
         <!-- Section Liste des élèves -->
         <section class="card">
             <h2>Liste des élèves</h2>
-            <button id="btn-liste" class="btn-primary">Afficher tous les élèves</button>
-            <ul id="liste-eleves"></ul>
+            <button id="btn-liste">Afficher tous les élèves</button>
+            <div id="liste-eleves" class="list"></div>
         </section>
 
         <!-- Section Bonnes notes -->
         <section class="card">
             <h2>Élèves avec bonnes notes</h2>
-            <button id="btn-bonne-notes" class="btn-primary">Afficher bonnes notes</button>
-            <ul id="liste-bonnes-notes"></ul>
+            <button id="btn-bonne-notes">Afficher bonnes notes</button>
+            <div id="liste-bonnes-notes" class="list"></div>
         </section>
     </main>
 
     <footer>
-        <p>© 2026 Projet FastAPI - Dylan Guichard</p>
+        <p>&copy; 2026 Gestion Élèves</p>
     </footer>
 
     <script src="/static/js/index.js"></script>
