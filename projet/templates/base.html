@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h2>Mon Dashboard</h2>
+            <p>Gestion Écoles</p>
+        </div>
+        <div class="sidebar-nav">
+            <button class="sidebar-btn" onclick="location.href='/'">Dashboard</button>
+            <button class="sidebar-btn" onclick="location.href='/eleve/'">Élèves</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="topbar">
+            <h1>{% block page_title %}Page{% endblock %}</h1>
+            <div class="breadcrumb">{% block breadcrumb %}Accueil{% endblock %}</div>
+        </div>
+
+        <!-- Page content -->
+        {% block content %}{% endblock %}
+    </main>
+</div>
+</body>
+</html>

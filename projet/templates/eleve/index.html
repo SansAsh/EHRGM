@@ -1,3 +1,36 @@
-<h2>Liste des élèves</h2>
-<button id="btn-ajouter">Ajouter un élève</button>
-<ul id="eleves-list" class="list"></ul>
+{% extends "base.html" %}
+{% block title %}Liste des élèves{% endblock %}
+{% block page_title %}Liste des élèves{% endblock %}
+{% block breadcrumb %}Élèves{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <a href="/eleve/new" class="btn-action">➕ Ajouter un élève</a>
+
+    <table class="table_container">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Âge</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for eleve in eleves %}
+            <tr>
+                <td>{{ eleve.nom }}</td>
+                <td>{{ eleve.age }}</td>
+                <td>{{ eleve.email }}</td>
+                <td>
+                    <div class="table-actions">
+                        <a class="btn-edit" href="/eleve/{{ eleve.id }}/edit">✏️ Modifier</a>
+                        <a class="btn-delete" href="/eleve/{{ eleve.id }}/delete">🗑 Supprimer</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
