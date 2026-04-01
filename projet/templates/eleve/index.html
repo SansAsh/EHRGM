@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Liste des élèves{% endblock %}
-{% block page_title %}Liste des élèves{% endblock %}
+{% block page_title %}Liste des élèves <a href="/eleve/new" class="btn-action">➕ Ajouter un élève</a>{% endblock %}
 {% block breadcrumb %}Élèves{% endblock %}
 
 {% block content %}
 <div class="content-card">
-    <a href="/eleve/new" class="btn-action">➕ Ajouter un élève</a>
-
     <table class="table_container">
         <thead>
             <tr>
