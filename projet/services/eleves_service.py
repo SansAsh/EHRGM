@@ -1,6 +1,8 @@
 from api.database import get_connection
 from collections import defaultdict
 
+
+
 def get_all_eleves():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -10,12 +12,16 @@ def get_all_eleves():
     conn.close()
     return data
 
+
+
 def get_eleve_by_id(eleve_id):
     eleves = get_all_eleves()
     for eleve in eleves:
         if eleve["id"] == eleve_id:
             return eleve
     return {"erreur": "Élève non trouvé"}
+
+
 
 def get_eleves_avertis():
     conn = get_connection()
@@ -42,49 +48,71 @@ def get_eleves_avertis():
             })
     return result
 
+
+
 def get_bonne_notes():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
+
     cursor.execute("""
-        SELECT eleve.nom AS eleve, note.note
+        SELECT eleve.id, eleve.nom, note.note
         FROM eleve
         JOIN note ON eleve.id = note.eleve_id
     """)
+
     data = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
-    notes_par_eleve = defaultdict(list)
+    eleves_notes = {}
+
     for row in data:
-        notes_par_eleve[row["eleve"]].append(float(row["note"]))
+        eleves_notes.setdefault(row["nom"], []).append(float(row["note"]))
 
     result = []
-    for eleve, notes in notes_par_eleve.items():
+
+    for nom, notes in eleves_notes.items():
         moyenne = sum(notes) / len(notes)
         if moyenne > 12:
-            result.append({"nom": eleve, "moyenne": round(moyenne, 2)})
+            result.append({
+                "nom": nom,
+                "moyenne": round(moyenne, 2)
+            })
 
-    # Tri de la moyenne la plus haute à la plus basse
+    # tri PYTHON (important ✅)
     result.sort(key=lambda x: x["moyenne"], reverse=True)
+
     return result
+
+
 
 def get_absence_eleve(eleve_id):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
+
     cursor.execute("""
-        SELECT duree_minutes, eleve_id FROM absence
+        SELECT eleve_id, duree_minutes
+        FROM absence
     """)
+
     data = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
-    total = sum(row["duree_minutes"] for row in data if row["eleve_id"] == eleve_id)
+    total = 0
+
+    for row in data:
+        if row["eleve_id"] == eleve_id:
+            total += row["duree_minutes"]
 
     return {
         "eleve_id": eleve_id,
-        "absence_minutes": total,
         "absence_heures": round(total / 60, 2)
     }
+
+
 
 def create_eleve(nom, email, age, promotion_id):
     conn = get_connection()
@@ -98,6 +126,8 @@ def create_eleve(nom, email, age, promotion_id):
     conn.close()
     return {"message": "Élève ajouté"}
 
+
+
 def update_eleve(eleve_id, nom, email, age, promotion_id):
     conn = get_connection()
     cursor = conn.cursor()
@@ -110,6 +140,8 @@ def update_eleve(eleve_id, nom, email, age, promotion_id):
     conn.close()
     return {"message": "Élève modifié"}
 
+
+
 def delete_eleve(eleve_id):
     conn = get_connection()
     cursor = conn.cursor()
@@ -118,3 +150,55 @@ def delete_eleve(eleve_id):
     cursor.close()
     conn.close()
     return {"message": "Élève supprimé"}
+
+
+
+def get_notes_eleve(eleve_id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT eleve.id, eleve.nom, note.note, cours.nom AS cours
+        FROM eleve
+        JOIN note ON eleve.id = note.eleve_id
+        JOIN cours ON cours.id = note.cours_id
+    """)
+
+    data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    result = []
+
+    for row in data:
+        if row["id"] == eleve_id:
+            result.append({
+                "nom": row["nom"],
+                "cours": row["cours"],
+                "note": float(row["note"])
+            })
+
+    return result
+
+
+
+def get_dossier_eleve(eleve_id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT eleve_id, avertissement_travail, avertissement_comportement
+        FROM dossier
+    """)
+
+    data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    for row in data:
+        if row["eleve_id"] == eleve_id:
+            return row
+
+    return {}

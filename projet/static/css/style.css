@@ -89,6 +89,7 @@ body {
 }
 
 table {
+    text-align: center;
     width: 100%;
     border-collapse: collapse;
     background: white;
@@ -113,10 +114,12 @@ tbody tr:hover {
 
 /* Liens Modifier / Supprimer */
 .table-actions {
+    text-align: center;
     display: flex;
     gap: 10px;
 }
 
+.btn-show,
 .btn-edit,
 .btn-action,
 .btn-delete {
@@ -127,10 +130,23 @@ tbody tr:hover {
     font-weight: 600;
 }
 
+.btn-show:hover {
+    background: #29c2f0;
+}
+
 .btn-action:hover{
     background: #a3fd8a;
 }
 
+.btn-action {
+    background: #86efac;
+    color: #166534;
+}
+
+.btn-show {
+    background: #bae6fd;
+    color: #0369a1;
+}
 .btn-edit {
     background: #fef3c7;
     color: #b45309;

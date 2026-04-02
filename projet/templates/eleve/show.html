@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Fiche élève{% endblock %}
+{% block page_title %}Fiche élève{% endblock %}
+{% block breadcrumb %} <a href="/eleve/{{ eleve.id }}/edit" class="btn-edit">✏️ Modifier</a> <a href="/eleve/">Liste des élèves</a> / SHOW{% endblock %}
+
+{% block content %}
+<div class="content-card">
+
+    <h2>👤 {{ eleve.nom }}</h2>
+
+    <p><strong>Âge :</strong> {{ eleve.age }}</p>
+    <p><strong>Email :</strong> {{ eleve.email }}</p>
+    <p><strong>Promotion :</strong> {{ eleve.promotion_id }}</p>
+
+    <br>
+    <hr>
+
+    <h3>📊 Notes</h3>
+
+    {% if notes %}
+        <ul>
+            {% for note in notes %}
+                <li>{{ note.cours }} : <strong>{{ note.note }}</strong></li>
+            {% endfor %}
+        </ul>
+
+        <p>
+            <strong>Moyenne :</strong> 
+            <span>
+                {{ moyenne }}
+            </span>
+        </p>
+    {% else %}
+        <p>Aucune note</p>
+    {% endif %}
+
+    <br>
+    <hr>
+
+    <h3>⏱ Absences</h3>
+    <p>{{ absences.absence_heures }} heures</p>
+
+    <br>
+    <hr>
+
+    <h3>⚠️ Avertissements</h3>
+
+    {% if dossier.avertissement_travail == 1 %}
+        <p style="color:red;">⚠️ Travail</p>
+    {% endif %}
+
+    {% if dossier.avertissement_comportement == 1 %}
+        <p style="color:red;">⚠️ Comportement</p>
+    {% endif %}
+
+    {% if dossier.avertissement_travail != 1 and dossier.avertissement_comportement != 1 %}
+        <p style="color:green;">✅ Aucun avertissement</p>
+    {% endif %}
+
+</div>
+{% endblock %}

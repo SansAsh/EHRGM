@@ -50,6 +50,30 @@ def update_eleve_form(
     update_eleve(eleve_id, nom, email, age, promotion_id)
     return RedirectResponse("/eleve/", status_code=303)
 
+
+# -------- SHOW --------
+@router.get("/{eleve_id}", response_class=HTMLResponse)
+def show_eleve_page(request: Request, eleve_id: int):
+    eleve = get_eleve_by_id(eleve_id)
+    notes = get_notes_eleve(eleve_id)
+    absences = get_absence_eleve(eleve_id)
+    dossier = get_dossier_eleve(eleve_id)
+
+    # moyenne en Python
+    moyenne = 0
+    if notes:
+        moyenne = round(sum(n["note"] for n in notes) / len(notes), 2)
+
+    return templates.TemplateResponse("eleve/show.html", {
+        "request": request,
+        "eleve": eleve,
+        "notes": notes,
+        "moyenne": moyenne,
+        "absences": absences,
+        "dossier": dossier
+    })
+
+
 # -------- DELETE --------
 @router.get("/{eleve_id}/delete")
 def delete_eleve_route(eleve_id: int):

@@ -21,10 +21,9 @@
                 <td>{{ eleve.age }}</td>
                 <td>{{ eleve.email }}</td>
                 <td>
-                    <div class="table-actions">
-                        <a class="btn-edit" href="/eleve/{{ eleve.id }}/edit">✏️ Modifier</a>
-                        <a class="btn-delete" href="/eleve/{{ eleve.id }}/delete">🗑 Supprimer</a>
-                    </div>
+                    <a class="btn-show" href="/eleve/{{ eleve.id }}">👁 Voir</a>
+                    <a class="btn-edit" href="/eleve/{{ eleve.id }}/edit">✏️ Modifier</a>
+                    <a class="btn-delete" href="/eleve/{{ eleve.id }}/delete">🗑 Supprimer</a>
                 </td>
             </tr>
             {% endfor %}
