@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from services.eleves_service import *
+import requests
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -10,9 +11,11 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/", response_class=HTMLResponse)
 def eleves_page(request: Request):
     eleves = get_all_eleves()
+    avertisement = get_eleves_avertis()
     return templates.TemplateResponse("eleve/index.html", {
         "request": request,
-        "eleves": eleves
+        "eleves": eleves,
+        "avertisement": avertisement
     })
 
 # -------- AJOUT --------
@@ -79,3 +82,4 @@ def show_eleve_page(request: Request, eleve_id: int):
 def delete_eleve_route(eleve_id: int):
     delete_eleve(eleve_id)
     return RedirectResponse("/eleve/", status_code=303)
+

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des profs{% endblock %}
+{% block page_title %}Liste des profs <a href="/prof/new" class="btn-action">➕ Ajouter un prof</a>{% endblock %}
+{% block breadcrumb %}Profs{% endblock %}
+
+{% block content %}
+<div class="content-card">
+
+
+    <!-- Tous les profs -->
+    <h2>Liste complète des profs</h2>
+    <br>
+    <table class="table_container">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Âge</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prof in all_profs %}
+            <tr>
+                <td>{{ prof.nom }}</td>
+                <td>{{ prof.email }}</td>
+                <td>{{ prof.age }}</td>
+                <td>
+                    <a class="btn-edit" href="/prof/{{ prof.id }}/edit">✏️ Modifier</a>
+                    <a class="btn-delete" href="/prof/{{ prof.id }}/delete">🗑 Supprimer</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+
+    <!-- Liste des profs sévères -->
+    {% if profs_severe %}
+        <h2>Profs dont la moyenne des notes données est < 11</h2>
+        <br>
+        <table class="table_container">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Moyenne</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in profs_severe %}
+                <tr>
+                    <td>{{ p.prof }}</td>
+                    <td>{{ p.moyenne }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun professeur sévère pour le moment.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

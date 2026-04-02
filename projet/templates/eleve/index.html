@@ -29,5 +29,26 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <br>
+
+    <h1>Élèves Avertis</h1>
+    <br>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Avertissement Travail</th>
+            <th>Avertissement Comportement</th>
+        </tr>
+
+        {% for a in avertisement %}
+        <tr>
+            <td>{{ a.nom }}</td>
+            <td>{{ a.avertissement_travail }}</td>
+            <td>{{ a.avertissement_comportement }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
 </div>
 {% endblock %}

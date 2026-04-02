@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter une note{% endblock %}
+{% block page_title %}Ajouter une nouvelle note{% endblock %}
+{% block breadcrumb %}<a href="/note/">Liste des Notes</a> / Ajouter{% endblock %}
+
+{% block content %}
+<form method="post" action="/note/new">
+    <label for="eleve_id">ID Élève</label>
+    <input type="number" id="eleve_id" name="eleve_id" required>
+
+    <label for="prof_id">ID Prof</label>
+    <input type="number" id="prof_id" name="prof_id" required>
+
+    <label for="note_valeur">Note</label>
+    <input type="number" step="0.01" id="note_valeur" name="note_valeur" required>
+
+    <button type="submit">Ajouter</button>
+</form>
+{% endblock %}

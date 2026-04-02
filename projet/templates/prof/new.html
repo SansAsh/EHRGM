@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter un prof{% endblock %}
+{% block page_title %}Ajouter un nouvel prof{% endblock %}
+{% block breadcrumb %}<a href="/prof/">Liste des profs</a> / Ajouter{% endblock %}
+
+{% block content %}
+<form method="post" action="/prof/new">
+    <label for="nom">Nom</label>
+    <input type="text" id="nom" name="nom" required>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="age">Âge</label>
+    <input type="number" id="age" name="age" required>
+
+    <button type="submit">Ajouter</button>
+</form>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Spécialités{% endblock %}
+{% block page_title %}Spécialités{% endblock %}
+{% block breadcrumb %}Spécialités{% endblock %}
+
+{% block content %}
+
+<div class="content-card" style="padding: 20px; max-width: 800px; margin: auto;">
+
+    <h2 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Consulter une spécialité</h2>
+
+    <!-- Formulaire avec style -->
+    <form method="get" onsubmit="goToSpecialite(event)" style="display: flex; justify-content: center; margin-bottom: 30px;">
+        <input type="number" id="specialite_id" placeholder="ID spécialité" required
+               style="padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; margin-right: 10px;">
+        <button type="submit"
+                style="padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; background-color: #2980b9; color: white; cursor: pointer;">
+            Voir
+        </button>
+    </form>
+
+    <script>
+    function goToSpecialite(event) {
+        event.preventDefault();
+        const id = document.getElementById("specialite_id").value;
+        if (id) {
+            window.location.href = "/specialite/" + id;
+        }
+    }
+    </script>
+
+    <!-- Affichage des cours -->
+    {% if cours %}
+        <h3 style="color: #16a085; margin-bottom: 10px;">📚 Cours liés à la spécialité</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+            {% for c in cours %}
+                <div style="flex: 1 1 200px; background-color: #ecf0f1; padding: 10px 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    {{ c }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Affichage des promotions -->
+    {% if promotions %}
+        <h3 style="color: #e67e22; margin-top: 30px; margin-bottom: 10px;">🎓 Promotions liées à la spécialité</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+            {% for p in promotions %}
+                <div style="flex: 1 1 150px; background-color: #f1c40f; color: #2c3e50; padding: 10px 15px; border-radius: 8px; text-align: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    Année : {{ p.annee }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Message si aucune donnée -->
+    {% if not cours and not promotions and id %}
+        <p style="text-align: center; color: #c0392b; margin-top: 30px;">Aucune information trouvée pour cette spécialité (ID = {{ id }})</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

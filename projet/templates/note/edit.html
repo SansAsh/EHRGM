@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier une note{% endblock %}
+{% block page_title %}Modifier la note{% endblock %}
+{% block breadcrumb %}<a href="/note/">Liste des Notes</a> / Modifier{% endblock %}
+
+{% block content %}
+<form method="post">
+    <label for="eleve_id">ID Élève</label>
+    <input type="number" id="eleve_id" name="eleve_id" value="{{ note.eleve_id }}" required>
+
+    <label for="prof_id">ID Prof</label>
+    <input type="number" id="prof_id" name="prof_id" value="{{ note.prof_id }}" required>
+
+    <label for="note_valeur">Note</label>
+    <input type="number" step="0.01" id="note_valeur" name="note_valeur" value="{{ note.note }}" required>
+
+    <button type="submit">Modifier</button>
+</form>
+{% endblock %}

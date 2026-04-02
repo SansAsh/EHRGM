@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des élèves - Moyenne > 12{% endblock %}
+{% block page_title %}Liste notes des élèves <a href="/note/new" class="btn-action">➕ Ajouter une note</a>{% endblock %}
+{% block breadcrumb %}Notes{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    
+
+    <table class="table_container">
+        <thead>
+            <tr>
+                <th>Nom de l'élève</th>
+                <th>Proffeseur</th>
+                <th>Note</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in eleves_all %}
+            <tr>
+                <td>{{ e.eleve_nom }}</td>
+                <td>{{ e.prof_nom }}</td>
+                <td>{{ e.note }}</td>
+                <td>
+                    <a class="btn-edit" href="/note/{{ e.id }}/edit">✏️ Modifier</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+
+    <h2>Élèves avec une moyenne > 12</h2>
+    <br>
+    <table class="table_container">
+        <thead>
+            <tr>
+                <th>Nom de l'élève</th>
+                <th>Moyenne générale</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in eleves_moyenne %}
+            <tr>
+                <td>{{ e.nom }}</td>
+                <td>{{ e.moyenne }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</div>
+{% endblock %}
