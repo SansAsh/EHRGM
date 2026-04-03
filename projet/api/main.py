@@ -1,12 +1,38 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import SessionLocal
+import uuid
 
 app = FastAPI()
 
+# =========================
+# 🔐 GESTION API KEY
+# =========================
 
-# Connexion DB
+# stockage simple (mémoire)
+API_KEYS = set()
+
+API_KEY_NAME = "x-api-key"
+
+
+def verify_api_key(x_api_key: str = Header(None)):
+    if x_api_key not in API_KEYS:
+        raise HTTPException(status_code=401, detail="Clé API invalide")
+
+
+# endpoint pour générer une clé
+@app.get("/generate-api-key")
+def generate_api_key():
+    new_key = str(uuid.uuid4())
+    API_KEYS.add(new_key)
+    return {"api_key": new_key}
+
+
+# =========================
+# 🔌 Connexion DB
+# =========================
+
 def get_db():
     db = SessionLocal()
     try:
@@ -15,23 +41,26 @@ def get_db():
         db.close()
 
 
-# ROOT
+# =========================
+# 🟢 ROOT (public)
+# =========================
+
 @app.get("/")
 def root():
     return {"message": "API Ecole OK 🚀"}
 
 
 # =========================
-# 👨‍🎓 ELEVE (CRUD)
+# 👨‍🎓 ELEVE
 # =========================
 
-@app.get("/eleve/")
+@app.get("/eleve/", dependencies=[Depends(verify_api_key)])
 def get_eleves(db: Session = Depends(get_db)):
     result = db.execute(text("SELECT * FROM eleve")).fetchall()
     return [dict(r._mapping) for r in result]
 
 
-@app.get("/eleve/{id}")
+@app.get("/eleve/{id}", dependencies=[Depends(verify_api_key)])
 def get_eleve(id: int, db: Session = Depends(get_db)):
     result = db.execute(text("SELECT * FROM eleve")).fetchall()
     for e in result:
@@ -40,7 +69,7 @@ def get_eleve(id: int, db: Session = Depends(get_db)):
     raise HTTPException(status_code=404, detail="Eleve not found")
 
 
-@app.post("/eleve")
+@app.post("/eleve", dependencies=[Depends(verify_api_key)])
 def create_eleve(nom: str, age: int, db: Session = Depends(get_db)):
     db.execute(text("INSERT INTO eleve (nom, age) VALUES (:nom, :age)"),
                {"nom": nom, "age": age})
@@ -48,7 +77,7 @@ def create_eleve(nom: str, age: int, db: Session = Depends(get_db)):
     return {"message": "Eleve créé"}
 
 
-@app.put("/eleve/{id}")
+@app.put("/eleve/{id}", dependencies=[Depends(verify_api_key)])
 def update_eleve(id: int, nom: str, age: int, db: Session = Depends(get_db)):
     db.execute(text("UPDATE eleve SET nom=:nom, age=:age WHERE id=:id"),
                {"id": id, "nom": nom, "age": age})
@@ -56,7 +85,7 @@ def update_eleve(id: int, nom: str, age: int, db: Session = Depends(get_db)):
     return {"message": "Eleve modifié"}
 
 
-@app.delete("/eleve/{id}")
+@app.delete("/eleve/{id}", dependencies=[Depends(verify_api_key)])
 def delete_eleve(id: int, db: Session = Depends(get_db)):
     db.execute(text("DELETE FROM eleve WHERE id=:id"), {"id": id})
     db.commit()
@@ -67,7 +96,7 @@ def delete_eleve(id: int, db: Session = Depends(get_db)):
 # 📝 NOTES
 # =========================
 
-@app.get("/notes/{eleve_id}")
+@app.get("/notes/{eleve_id}", dependencies=[Depends(verify_api_key)])
 def get_notes(eleve_id: int, db: Session = Depends(get_db)):
     notes = db.execute(text("SELECT * FROM note")).fetchall()
     eleves = db.execute(text("SELECT * FROM eleve")).fetchall()
@@ -85,7 +114,7 @@ def get_notes(eleve_id: int, db: Session = Depends(get_db)):
     return result
 
 
-@app.post("/note")
+@app.post("/note", dependencies=[Depends(verify_api_key)])
 def create_note(eleve_id: int, prof_id: int, note: float, matiere: str, db: Session = Depends(get_db)):
     db.execute(text("""
         INSERT INTO note (eleve_id, prof_id, note, matiere)
@@ -95,7 +124,7 @@ def create_note(eleve_id: int, prof_id: int, note: float, matiere: str, db: Sess
     return {"message": "Note ajoutée"}
 
 
-@app.put("/note/{id}")
+@app.put("/note/{id}", dependencies=[Depends(verify_api_key)])
 def update_note(id: int, note: float, db: Session = Depends(get_db)):
     db.execute(text("UPDATE note SET note=:note WHERE id=:id"),
                {"id": id, "note": note})
@@ -104,39 +133,23 @@ def update_note(id: int, note: float, db: Session = Depends(get_db)):
 
 
 # =========================
-# 📚 SPECIALITES
-# =========================
-
-@app.get("/specialites/{id}/cours")
-def get_cours(id: int, db: Session = Depends(get_db)):
-    cours = db.execute(text("SELECT * FROM cours")).fetchall()
-    return [{"nom": c.nom} for c in cours if c.specialite_id == id]
-
-
-@app.get("/specialites/{id}/prom")
-def get_prom(id: int, db: Session = Depends(get_db)):
-    promos = db.execute(text("SELECT * FROM promotion")).fetchall()
-    return [{"nom": p.nom} for p in promos if p.specialite_id == id]
-
-
-# =========================
 # 👨‍🏫 PROF
 # =========================
 
-@app.get("/prof")
+@app.get("/prof", dependencies=[Depends(verify_api_key)])
 def get_profs(db: Session = Depends(get_db)):
     result = db.execute(text("SELECT * FROM prof")).fetchall()
     return [dict(r._mapping) for r in result]
 
 
-@app.post("/prof")
+@app.post("/prof", dependencies=[Depends(verify_api_key)])
 def create_prof(nom: str, db: Session = Depends(get_db)):
     db.execute(text("INSERT INTO prof (nom) VALUES (:nom)"), {"nom": nom})
     db.commit()
     return {"message": "Prof créé"}
 
 
-@app.put("/prof/{id}")
+@app.put("/prof/{id}", dependencies=[Depends(verify_api_key)])
 def update_prof(id: int, nom: str, db: Session = Depends(get_db)):
     db.execute(text("UPDATE prof SET nom=:nom WHERE id=:id"),
                {"id": id, "nom": nom})
@@ -144,7 +157,7 @@ def update_prof(id: int, nom: str, db: Session = Depends(get_db)):
     return {"message": "Prof modifié"}
 
 
-@app.delete("/prof/{id}")
+@app.delete("/prof/{id}", dependencies=[Depends(verify_api_key)])
 def delete_prof(id: int, db: Session = Depends(get_db)):
     db.execute(text("DELETE FROM prof WHERE id=:id"), {"id": id})
     db.commit()
