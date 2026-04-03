@@ -1,10 +1,20 @@
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel
 from typing import Optional
-from database import fetch_all, fetch_one, execute
+
+from database import execute, fetch_all, fetch_one
+from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel
 
 app = FastAPI(title="API École", version="1.0.0")
 
+security = HTTPBearer()
+
+FAKE_TOKEN = "mon-super-token-secret"
+
+def verifier_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if credentials.credentials != FAKE_TOKEN:
+        raise HTTPException(status_code=401, detail="Token invalide")
+    
 # ----------------- Création des class -----------------
 
 class EleveCreate(BaseModel):
@@ -106,16 +116,22 @@ def calculer_heures_absence(absences: list) -> int:
     total_minutes = sum(a["duree_minutes"] for a in absences if a["duree_minutes"])
     return total_minutes
 
+# ------------- Login --------------------------
+@app.post("/login")
+def login(username: str, password: str):
+    if username == "admin" and password == "1234":
+        return {"token": FAKE_TOKEN}
+    raise HTTPException(status_code=401, detail="Identifiants invalides")
 
 # ------------- GET eleves ---------------------
 
 @app.get("/eleve/")
-def liste_eleves():
+def liste_eleves(credentials=Depends(verifier_token)):
     rows = fetch_all("SELECT id, nom, age FROM eleve")
     return rows
 
 @app.get("/eleve/avertis")
-def eleves_avertis():
+def eleves_avertis(credentials=Depends(verifier_token)):
     rows = fetch_all(
         "SELECT e.id, e.nom, e.age, d.avertissement_travail, d.avertissement_comportement "
         "FROM eleve e JOIN dossier d ON e.id = d.eleve_id"
@@ -123,7 +139,7 @@ def eleves_avertis():
     return filtrer_avertis(rows)
 
 @app.get("/eleve/bonne_notes")
-def eleves_bonne_notes():
+def eleves_bonne_notes(credentials=Depends(verifier_token)):
     eleves = fetch_all("SELECT id, nom FROM eleve")
     notes = fetch_all("SELECT eleve_id, note FROM note")
 
@@ -137,14 +153,14 @@ def eleves_bonne_notes():
     return trier_par_moyenne(moyennes)
 
 @app.get("/eleve/{id}")
-def get_eleve(id: int):
+def get_eleve(id: int, credentials = Depends(verifier_token)):
     row = fetch_one("SELECT id, nom, email, age, promotion_id FROM eleve WHERE id = %s", (id,))
     if not row:
         raise HTTPException(status_code=404, detail="Élève introuvable")
     return row
 
 @app.get("/eleve/{id}/absence")
-def heures_absence_eleve(id: int):
+def heures_absence_eleve(id: int, credentials = Depends(verifier_token)):
     eleve = fetch_one("SELECT id, nom FROM eleve WHERE id = %s", (id,))
     if not eleve:
         raise HTTPException(status_code=404, detail="Élève introuvable")
@@ -163,7 +179,7 @@ def heures_absence_eleve(id: int):
 # ------------- GET notes ---------------------
 
 @app.get("/notes/{eleve_id}")
-def notes_eleve(eleve_id: int):
+def notes_eleve(eleve_id: int, credentials = Depends(verifier_token)):
     eleve = fetch_one("SELECT nom FROM eleve WHERE id = %s", (eleve_id,))
     if not eleve:
         raise HTTPException(status_code=404, detail="Élève introuvable")
@@ -178,7 +194,7 @@ def notes_eleve(eleve_id: int):
     return [{"note": float(r["note"]), "matiere": r["matiere"], "nom_eleve": r["nom_eleve"]} for r in rows]
 
 @app.get("/note")
-def notes_par(par: str = Query(..., description="eleve, prof, cours, promotion")):
+def notes_par(par: str = Query(..., description="eleve, prof, cours, promotion"), credentials = Depends(verifier_token)):
     valeurs_valides = ["eleve", "prof", "cours", "promotion"]
     if par not in valeurs_valides:
         raise HTTPException(status_code=400, detail=f"Valeur invalide. Choisir parmi : {valeurs_valides}")
@@ -209,11 +225,11 @@ def notes_par(par: str = Query(..., description="eleve, prof, cours, promotion")
 # ------------- GET professeurs ---------------------
 
 @app.get("/prof/")
-def liste_profs():
+def liste_profs(credentials = Depends(verifier_token)):
     return fetch_all("SELECT id, nom, age, email FROM prof")
 
 @app.get("/prof/severe")
-def profs_severes():
+def profs_severes(credentials = Depends(verifier_token)):
     profs = fetch_all("SELECT id, nom FROM prof")
     notes = fetch_all("SELECT prof_id, note FROM note")
 
@@ -227,7 +243,7 @@ def profs_severes():
     return sorted(result, key=lambda x: x["moyenne_notes_donnees"])
 
 @app.get("/prof/{id}")
-def get_prof(id: int):
+def get_prof(id: int, credentials = Depends(verifier_token)):
     row = fetch_one("SELECT id, nom, email, age FROM prof WHERE id = %s", (id,))
     if not row:
         raise HTTPException(status_code=404, detail="Professeur introuvable")
@@ -236,14 +252,14 @@ def get_prof(id: int):
 # ------------- GET matières ---------------------
 
 @app.get("/specialites/{id}/cours")
-def cours_par_specialite(id: int):
+def cours_par_specialite(id: int, credentials = Depends(verifier_token)):
     rows = fetch_all(
         "SELECT c.id, c.nom, c.niveau FROM cours c WHERE c.specialite_id = %s", (id,)
     )
     return rows
 
 @app.get("/specialites/{id}/prom")
-def promotions_par_specialite(id: int):
+def promotions_par_specialite(id: int, credentials = Depends(verifier_token)):
     rows = fetch_all(
         "SELECT p.id, p.annee FROM promotion p WHERE p.specialite_id = %s", (id,)
     )
@@ -252,7 +268,7 @@ def promotions_par_specialite(id: int):
 # ------------- GET club ---------------------
 
 @app.get("/clubs/")
-def liste_clubs():
+def liste_clubs(credentials = Depends(verifier_token)):
     rows = fetch_all(
         "SELECT cl.id, cl.nom, cl.nb_membres_max, cl.date_creation, "
         "s.nom AS sport, p.nom AS responsable "
@@ -263,7 +279,7 @@ def liste_clubs():
     return rows
 
 @app.get("/clubs/{id}/membres")
-def membres_club(id: int):
+def membres_club(id: int, credentials = Depends(verifier_token)):
     club = fetch_one("SELECT id, nom FROM club WHERE id = %s", (id,))
     if not club:
         raise HTTPException(status_code=404, detail="Club introuvable")
@@ -279,7 +295,7 @@ def membres_club(id: int):
     return {"club": club["nom"], "membres": membres_tries}
 
 @app.get("/clubs/{id}/stats")
-def stats_club(id: int):
+def stats_club(id: int, credentials = Depends(verifier_token)):
     club = fetch_one("SELECT id, nom FROM club WHERE id = %s", (id,))
     if not club:
         raise HTTPException(status_code=404, detail="Club introuvable")
@@ -303,7 +319,7 @@ def stats_club(id: int):
 # ------------- CRUD eleves ---------------------
 
 @app.post("/eleve/", status_code=201)
-def creer_eleve(eleve: EleveCreate):
+def creer_eleve(eleve: EleveCreate, credentials = Depends(verifier_token)):
     new_id = execute(
         "INSERT INTO eleve (nom, email, age, promotion_id) VALUES (%s, %s, %s, %s)",
         (eleve.nom, eleve.email, eleve.age, eleve.promotion_id)
@@ -311,7 +327,7 @@ def creer_eleve(eleve: EleveCreate):
     return {"id": new_id, **eleve.dict()}
 
 @app.put("/eleve/{id}")
-def modifier_eleve(id: int, eleve: EleveUpdate):
+def modifier_eleve(id: int, eleve: EleveUpdate, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM eleve WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Élève introuvable")
@@ -323,7 +339,7 @@ def modifier_eleve(id: int, eleve: EleveUpdate):
     return fetch_one("SELECT id, nom, email, age, promotion_id FROM eleve WHERE id = %s", (id,))
 
 @app.delete("/eleve/{id}")
-def supprimer_eleve(id: int):
+def supprimer_eleve(id: int, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM eleve WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Élève introuvable")
@@ -333,7 +349,7 @@ def supprimer_eleve(id: int):
 # ------------- CRUD professeurs ---------------------
 
 @app.post("/prof/", status_code=201)
-def creer_prof(prof: ProfCreate):
+def creer_prof(prof: ProfCreate, credentials = Depends(verifier_token)):
     new_id = execute(
         "INSERT INTO prof (nom, email, age) VALUES (%s, %s, %s)",
         (prof.nom, prof.email, prof.age)
@@ -341,7 +357,7 @@ def creer_prof(prof: ProfCreate):
     return {"id": new_id, **prof.dict()}
 
 @app.put("/prof/{id}")
-def modifier_prof(id: int, prof: ProfUpdate):
+def modifier_prof(id: int, prof: ProfUpdate, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM prof WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Professeur introuvable")
@@ -353,7 +369,7 @@ def modifier_prof(id: int, prof: ProfUpdate):
     return fetch_one("SELECT id, nom, email, age FROM prof WHERE id = %s", (id,))
 
 @app.delete("/prof/{id}")
-def supprimer_prof(id: int):
+def supprimer_prof(id: int, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM prof WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Professeur introuvable")
@@ -364,7 +380,7 @@ def supprimer_prof(id: int):
 # ------------- CRUD notes ---------------------
 
 @app.get("/note/{id}")
-def get_note(id: int):
+def get_note(id: int, credentials = Depends(verifier_token)):
     row = fetch_one("SELECT id, eleve_id, cours_id, prof_id, note FROM note WHERE id = %s", (id,))
     if not row:
         raise HTTPException(status_code=404, detail="Note introuvable")
@@ -372,13 +388,13 @@ def get_note(id: int):
     return row
 
 @app.get("/notes/")
-def liste_notes():
+def liste_notes(credentials = Depends(verifier_token)):
     rows = fetch_all("SELECT id, eleve_id, cours_id, prof_id, note FROM note")
     return [{"id": r["id"], "eleve_id": r["eleve_id"], "cours_id": r["cours_id"],
              "prof_id": r["prof_id"], "note": float(r["note"])} for r in rows]
 
 @app.post("/note/", status_code=201)
-def creer_note(note: NoteCreate):
+def creer_note(note: NoteCreate, credentials = Depends(verifier_token)):
     if note.note < 0 or note.note > 20:
         raise HTTPException(status_code=400, detail="La note doit être entre 0 et 20")
     new_id = execute(
@@ -388,7 +404,7 @@ def creer_note(note: NoteCreate):
     return {"id": new_id, **note.dict()}
 
 @app.put("/note/{id}")
-def modifier_note(id: int, note: NoteUpdate):
+def modifier_note(id: int, note: NoteUpdate, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id, note FROM note WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Note introuvable")
@@ -401,7 +417,7 @@ def modifier_note(id: int, note: NoteUpdate):
 # ------------- CRUD dossiers ---------------------
 
 @app.get("/dossier/{eleve_id}")
-def get_dossier(eleve_id: int):
+def get_dossier(eleve_id: int, credentials = Depends(verifier_token)):
     row = fetch_one(
         "SELECT d.id, d.eleve_id, e.nom AS nom_eleve, d.infos, "
         "d.avertissement_travail, d.avertissement_comportement "
@@ -414,7 +430,7 @@ def get_dossier(eleve_id: int):
     return row
 
 @app.put("/dossier/{eleve_id}")
-def modifier_dossier(eleve_id: int, dossier: DossierUpdate):
+def modifier_dossier(eleve_id: int, dossier: DossierUpdate, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM dossier WHERE eleve_id = %s", (eleve_id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Dossier introuvable")
@@ -429,7 +445,7 @@ def modifier_dossier(eleve_id: int, dossier: DossierUpdate):
 # ------------- CRUD cours ---------------------
 
 @app.get("/instance_cours/")
-def liste_instances_cours():
+def liste_instances_cours(credentials = Depends(verifier_token)):
     rows = fetch_all(
         "SELECT ic.id, c.nom AS cours, p.nom AS prof, ic.date "
         "FROM instance_cours ic "
@@ -439,14 +455,14 @@ def liste_instances_cours():
     return rows
 
 @app.get("/instance_cours/{id}")
-def get_instance_cours(id: int):
+def get_instance_cours(id: int, credentials = Depends(verifier_token)):
     row = fetch_one("SELECT id, cours_id, prof_id, date FROM instance_cours WHERE id = %s", (id,))
     if not row:
         raise HTTPException(status_code=404, detail="Instance de cours introuvable")
     return row
 
 @app.post("/instance_cours/", status_code=201)
-def creer_instance_cours(instance: InstanceCoursCreate):
+def creer_instance_cours(instance: InstanceCoursCreate, credentials = Depends(verifier_token)):
     new_id = execute(
         "INSERT INTO instance_cours (cours_id, prof_id, date) VALUES (%s, %s, %s)",
         (instance.cours_id, instance.prof_id, instance.date)
@@ -454,7 +470,7 @@ def creer_instance_cours(instance: InstanceCoursCreate):
     return {"id": new_id, **instance.dict()}
 
 @app.put("/instance_cours/{id}")
-def modifier_instance_cours(id: int, instance: InstanceCoursUpdate):
+def modifier_instance_cours(id: int, instance: InstanceCoursUpdate, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM instance_cours WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Instance de cours introuvable")
@@ -466,7 +482,7 @@ def modifier_instance_cours(id: int, instance: InstanceCoursUpdate):
     return fetch_one("SELECT id, cours_id, prof_id, date FROM instance_cours WHERE id = %s", (id,))
 
 @app.delete("/instance_cours/{id}")
-def supprimer_instance_cours(id: int):
+def supprimer_instance_cours(id: int, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM instance_cours WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Instance de cours introuvable")
@@ -477,7 +493,7 @@ def supprimer_instance_cours(id: int):
 # ------------- CRUD club ---------------------
 
 @app.post("/clubs/", status_code=201)
-def creer_club(club: ClubCreate):
+def creer_club(club: ClubCreate, credentials = Depends(verifier_token)):
     new_id = execute(
         "INSERT INTO club (nom, sport_id, responsable_id, date_creation, nb_membres_max) "
         "VALUES (%s, %s, %s, %s, %s)",
@@ -486,7 +502,7 @@ def creer_club(club: ClubCreate):
     return {"id": new_id, **club.dict()}
 
 @app.put("/clubs/{id}")
-def modifier_club(id: int, club: ClubUpdate):
+def modifier_club(id: int, club: ClubUpdate, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM club WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Club introuvable")
@@ -498,7 +514,7 @@ def modifier_club(id: int, club: ClubUpdate):
     return fetch_one("SELECT * FROM club WHERE id = %s", (id,))
 
 @app.delete("/clubs/{id}")
-def supprimer_club(id: int):
+def supprimer_club(id: int, credentials = Depends(verifier_token)):
     existing = fetch_one("SELECT id FROM club WHERE id = %s", (id,))
     if not existing:
         raise HTTPException(status_code=404, detail="Club introuvable")
@@ -506,7 +522,7 @@ def supprimer_club(id: int):
     return {"detail": "Club supprimé"}
 
 @app.post("/clubs/{id}/membres", status_code=201)
-def ajouter_membre_club(id: int, membre: ClubEleveCreate):
+def ajouter_membre_club(id: int, membre: ClubEleveCreate, credentials = Depends(verifier_token)):
     club = fetch_one("SELECT id FROM club WHERE id = %s", (id,))
     if not club:
         raise HTTPException(status_code=404, detail="Club introuvable")
@@ -517,7 +533,7 @@ def ajouter_membre_club(id: int, membre: ClubEleveCreate):
     return {"detail": "Membre ajouté"}
 
 @app.delete("/clubs/{club_id}/membres/{eleve_id}")
-def retirer_membre_club(club_id: int, eleve_id: int):
+def retirer_membre_club(club_id: int, eleve_id: int, credentials = Depends(verifier_token)):
     existing = fetch_one(
         "SELECT * FROM club_eleve WHERE club_id = %s AND eleve_id = %s",
         (club_id, eleve_id)
@@ -531,23 +547,23 @@ def retirer_membre_club(club_id: int, eleve_id: int):
 # ------------- Routes utilitaires ---------------------
 
 @app.get("/cours/")
-def liste_cours():
+def liste_cours(credentials = Depends(verifier_token)):
     return fetch_all(
         "SELECT c.id, c.nom, c.niveau, s.nom AS specialite "
         "FROM cours c LEFT JOIN specialite s ON c.specialite_id = s.id"
     )
 
 @app.get("/promotions/")
-def liste_promotions():
+def liste_promotions(credentials = Depends(verifier_token)):
     return fetch_all(
         "SELECT p.id, p.annee, s.nom AS specialite "
         "FROM promotion p LEFT JOIN specialite s ON p.specialite_id = s.id"
     )
 
 @app.get("/specialites/")
-def liste_specialites():
+def liste_specialites(credentials = Depends(verifier_token)):
     return fetch_all("SELECT id, nom FROM specialite")
 
 @app.get("/sports/")
-def liste_sports():
+def liste_sports(credentials = Depends(verifier_token)):
     return fetch_all("SELECT id, nom, nb_joueurs_max FROM sport")
