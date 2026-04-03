@@ -24,7 +24,7 @@ L’API permet :
 ### 1. Cloner le projet
 
 ```bash
-git clone 
+git clone https://github.com/SansAsh/EHRGM.git
 cd projet/api
 ```
 
