@@ -6,20 +6,13 @@ Projet API - L2 - 2025-2026 - ESIEE-IT
 - Python 3.10+
 - MySQL avec la base `ehrgm` importée
 - `pip`
-
----
+- Fast api
 
 ## Lancer l'API
 
 ```bash
-cd api
+cd /chemin/du/projet
 pip install -r requirements.txt
-
-# Configuration BDD (optionnel – défaut : root/localhost/ehrgm)
-export DB_HOST=127.0.0.1
-export DB_USER=root
-export DB_PASSWORD=
-export DB_NAME=ehrgm
 
 uvicorn main:app --reload
 ```
@@ -28,22 +21,12 @@ L'API sera disponible sur **http://127.0.0.1:8000**
 
 Documentation interactive : **http://127.0.0.1:8000/docs**
 
----
-
 ## Lancer l'interface d'administration
 
 ```bash
 cd admin
-pip install -r requirements.txt
-
-# Si l'API n'est pas sur le port par défaut :
-export API_URL=http://127.0.0.1:8000
-
 python admin.py
 ```
-
----
-
 ## Organisation du code
 
 ### `api/`
@@ -52,23 +35,18 @@ python admin.py
 |---|---|
 | `database.py` | Connexion MySQL + helpers `fetch_all`, `fetch_one`, `execute` |
 | `main.py` | Application FastAPI – tous les endpoints |
-| `requirements.txt` | Dépendances Python de l'API |
 
 #### Règles respectées (consignes)
-- Tout traitement (calcul de moyennes, tri, filtrage, groupement) est fait en **Python**, pas en SQL
-- Les requêtes SQL utilisent uniquement `SELECT`, `FROM`, `JOIN` (pas de `WHERE` sur les SELECTs de données, pas de `SUM`, `AVG`, `ORDER BY`)
-- Les données brutes sont chargées en mémoire puis traitées en Python
+- Tout traitement (calcul de moyennes, tri, filtrage, groupement) est fait en **Python**
+- Les requêtes SQL utilisent uniquement `SELECT`, `FROM`, `JOIN`
 
 ### `admin/`
 
 | Fichier | Rôle |
 |---|---|
 | `admin.py` | Interface CLI complète avec menus interactifs |
-| `requirements.txt` | Dépendances Python de l'admin |
 
 L'interface passe **toujours par l'API** via `requests` (GET, POST, PUT, DELETE). Elle ne se connecte jamais directement à la base de données.
-
----
 
 ## Endpoints API
 
@@ -104,13 +82,13 @@ L'interface passe **toujours par l'API** via `requests` (GET, POST, PUT, DELETE)
 | PUT | `/prof/{id}` | Modifier un prof |
 | DELETE | `/prof/{id}` | Supprimer un prof |
 
-### Spécialités
+### Matières
 | Méthode | Route | Description |
 |---|---|---|
 | GET | `/specialites/{id}/cours` | Cours d'une spécialité |
 | GET | `/specialites/{id}/prom` | Promotions d'une spécialité |
 
-### Instances de cours
+### Cours
 | Méthode | Route | Description |
 |---|---|---|
 | GET | `/instance_cours/` | Toutes les instances |
@@ -124,8 +102,6 @@ L'interface passe **toujours par l'API** via `requests` (GET, POST, PUT, DELETE)
 |---|---|---|
 | GET | `/dossier/{eleve_id}` | Voir le dossier d'un élève |
 | PUT | `/dossier/{eleve_id}` | Modifier le dossier |
-
----
 
 ## Fonctionnalité supplémentaire : Clubs Sportifs
 
