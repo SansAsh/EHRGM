@@ -2,10 +2,7 @@ import requests
 
 BASE_URL = "http://127.0.0.1:8000"
 
-
-# ─────────────────────────────────────────
-# ÉLÈVES
-# ─────────────────────────────────────────
+# -------------- Eleves -----------------
 
 def menu_eleves():
     while True:
@@ -139,10 +136,7 @@ def menu_eleves():
         else:
             print("Choix invalide. Réessayez.")
 
-
-# ─────────────────────────────────────────
-# PROFESSEURS
-# ─────────────────────────────────────────
+# -------------- Professeurs -----------------
 
 def menu_profs():
     while True:
@@ -238,11 +232,8 @@ def menu_profs():
             break
         else:
             print("Choix invalide. Réessayez.")
-
-
-# ─────────────────────────────────────────
-# NOTES
-# ─────────────────────────────────────────
+            
+# -------------- Notes -----------------
 
 def menu_notes():
     while True:
@@ -324,9 +315,7 @@ def menu_notes():
             print("Choix invalide. Réessayez.")
 
 
-# ─────────────────────────────────────────
-# DOSSIERS
-# ─────────────────────────────────────────
+# -------------- Dossiers -----------------
 
 def menu_dossiers():
     while True:
@@ -377,10 +366,7 @@ def menu_dossiers():
         else:
             print("Choix invalide. Réessayez.")
 
-
-# ─────────────────────────────────────────
-# INSTANCES DE COURS
-# ─────────────────────────────────────────
+# -------------- Cours -----------------─
 
 def menu_instances_cours():
     while True:
@@ -471,9 +457,7 @@ def menu_instances_cours():
             print("Choix invalide. Réessayez.")
 
 
-# ─────────────────────────────────────────
-# CLUBS (fonctionnalité supplémentaire)
-# ─────────────────────────────────────────
+# -------------- Club -----------------
 
 def menu_clubs():
     while True:
@@ -604,9 +588,7 @@ def menu_clubs():
             print("Choix invalide. Réessayez.")
 
 
-# ─────────────────────────────────────────
-# MENU PRINCIPAL
-# ─────────────────────────────────────────
+# -------------- Menue principal -----------------
 
 def menu():
     while True:
