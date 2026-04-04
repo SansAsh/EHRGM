@@ -13,7 +13,7 @@ DB_CONFIG = {
     "password": os.getenv("DB_PASSWORD", ""),
 
     # Nom de la base de données à utiliser
-    "database": os.getenv("DB_NAME", "ehrgm"),
+    "database": os.getenv("DB_NAME", "marco_enzo_lajeune_hugo_laquaye_remi_clement_maxime_donati_gabri"),
 
     # Port de connexion (3306)
     "port": int(os.getenv("DB_PORT", 3306)),
