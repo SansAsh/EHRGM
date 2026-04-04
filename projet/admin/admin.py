@@ -1,6 +1,38 @@
 import requests
 
 BASE_URL = "http://127.0.0.1:8000"
+TOKEN = None  # rempli après login
+
+def get_headers():
+    return {"Authorization": f"Bearer {TOKEN}"}
+
+def api_get(url):
+    return requests.get(url, headers=get_headers())
+
+def api_post(url, json):
+    return requests.post(url, json=json, headers=get_headers())
+
+def api_put(url, json):
+    return requests.put(url, json=json, headers=get_headers())
+
+def api_delete(url):
+    return requests.delete(url, headers=get_headers())
+
+# -------------- Login -----------------
+
+def login():
+    global TOKEN
+    print("\n=== Connexion à l'API École ===")
+    username = input("Nom d'utilisateur : ")
+    password = input("Mot de passe : ")
+    r = requests.post(f"{BASE_URL}/login?username={username}&password={password}")
+    if r.status_code == 200:
+        TOKEN = r.json()["token"]
+        print("Connexion réussie.")
+        return True
+    else:
+        print("Identifiants invalides.")
+        return False
 
 # -------------- Eleves -----------------
 
@@ -19,7 +51,7 @@ def menu_eleves():
         choix = input("> ")
 
         if choix == "1":
-            r = requests.get(f"{BASE_URL}/eleve/")
+            r = api_get(f"{BASE_URL}/eleve/")
             if r.status_code == 200:
                 print("\n=== Liste des élèves ===")
                 for e in r.json():
@@ -29,11 +61,11 @@ def menu_eleves():
 
         elif choix == "2":
             eid = input("ID de l'élève : ")
-            r = requests.get(f"{BASE_URL}/eleve/{eid}")
+            r = api_get(f"{BASE_URL}/eleve/{eid}")
             if r.status_code == 200:
                 e = r.json()
                 print(f"\nID: {e['id']} | Nom: {e['nom']} | Email: {e['email']} | Age: {e['age']} | Promotion ID: {e['promotion_id']}")
-                rn = requests.get(f"{BASE_URL}/notes/{eid}")
+                rn = api_get(f"{BASE_URL}/notes/{eid}")
                 if rn.status_code == 200 and rn.json():
                     print("Notes :")
                     for n in rn.json():
@@ -49,7 +81,7 @@ def menu_eleves():
             payload = {"nom": nom, "email": email, "age": age}
             if promo:
                 payload["promotion_id"] = int(promo)
-            r = requests.post(f"{BASE_URL}/eleve/", json=payload)
+            r = api_post(f"{BASE_URL}/eleve/", payload)
             if r.status_code == 201:
                 print(f"Élève créé avec l'ID {r.json()['id']}.")
             else:
@@ -57,7 +89,7 @@ def menu_eleves():
 
         elif choix == "4":
             eid = input("ID de l'élève à modifier : ")
-            r = requests.get(f"{BASE_URL}/eleve/{eid}")
+            r = api_get(f"{BASE_URL}/eleve/{eid}")
             if r.status_code != 200:
                 print("Élève introuvable.")
                 continue
@@ -73,7 +105,7 @@ def menu_eleves():
             if email: payload["email"] = email
             if age: payload["age"] = int(age)
             if promo: payload["promotion_id"] = int(promo)
-            r = requests.put(f"{BASE_URL}/eleve/{eid}", json=payload)
+            r = api_put(f"{BASE_URL}/eleve/{eid}", payload)
             if r.status_code == 200:
                 print("Élève mis à jour.")
             else:
@@ -81,21 +113,21 @@ def menu_eleves():
 
         elif choix == "5":
             eid = input("ID de l'élève à supprimer : ")
-            r = requests.get(f"{BASE_URL}/eleve/{eid}")
+            r = api_get(f"{BASE_URL}/eleve/{eid}")
             if r.status_code != 200:
                 print("Élève introuvable.")
                 continue
             print(f"Vous allez supprimer : {r.json()['nom']}")
             confirm = input("Confirmer ? (o/N) : ")
             if confirm.lower() == "o":
-                r = requests.delete(f"{BASE_URL}/eleve/{eid}")
+                r = api_delete(f"{BASE_URL}/eleve/{eid}")
                 if r.status_code == 200:
                     print("Élève supprimé.")
                 else:
                     print(f"Erreur : {r.json().get('detail', 'Inconnue')}")
 
         elif choix == "6":
-            r = requests.get(f"{BASE_URL}/eleve/avertis")
+            r = api_get(f"{BASE_URL}/eleve/avertis")
             if r.status_code == 200:
                 data = r.json()
                 if not data:
@@ -110,7 +142,7 @@ def menu_eleves():
                 print("Erreur lors de la récupération.")
 
         elif choix == "7":
-            r = requests.get(f"{BASE_URL}/eleve/bonne_notes")
+            r = api_get(f"{BASE_URL}/eleve/bonne_notes")
             if r.status_code == 200:
                 data = r.json()
                 if not data:
@@ -124,7 +156,7 @@ def menu_eleves():
 
         elif choix == "8":
             eid = input("ID de l'élève : ")
-            r = requests.get(f"{BASE_URL}/eleve/{eid}/absence")
+            r = api_get(f"{BASE_URL}/eleve/{eid}/absence")
             if r.status_code == 200:
                 d = r.json()
                 print(f"\n{d['eleve']} : {d['affichage']} d'absence ({d['total_minutes']} minutes)")
@@ -151,7 +183,7 @@ def menu_profs():
         choix = input("> ")
 
         if choix == "1":
-            r = requests.get(f"{BASE_URL}/prof/")
+            r = api_get(f"{BASE_URL}/prof/")
             if r.status_code == 200:
                 print("\n=== Liste des professeurs ===")
                 for p in r.json():
@@ -161,7 +193,7 @@ def menu_profs():
 
         elif choix == "2":
             pid = input("ID du prof : ")
-            r = requests.get(f"{BASE_URL}/prof/{pid}")
+            r = api_get(f"{BASE_URL}/prof/{pid}")
             if r.status_code == 200:
                 p = r.json()
                 print(f"\nID: {p['id']} | Nom: {p['nom']} | Email: {p['email']} | Age: {p['age']}")
@@ -172,7 +204,7 @@ def menu_profs():
             nom = input("Nom : ")
             email = input("Email : ")
             age = int(input("Age : "))
-            r = requests.post(f"{BASE_URL}/prof/", json={"nom": nom, "email": email, "age": age})
+            r = api_post(f"{BASE_URL}/prof/", {"nom": nom, "email": email, "age": age})
             if r.status_code == 201:
                 print(f"Professeur créé avec l'ID {r.json()['id']}.")
             else:
@@ -180,7 +212,7 @@ def menu_profs():
 
         elif choix == "4":
             pid = input("ID du prof à modifier : ")
-            r = requests.get(f"{BASE_URL}/prof/{pid}")
+            r = api_get(f"{BASE_URL}/prof/{pid}")
             if r.status_code != 200:
                 print("Professeur introuvable.")
                 continue
@@ -194,7 +226,7 @@ def menu_profs():
             if nom: payload["nom"] = nom
             if email: payload["email"] = email
             if age: payload["age"] = int(age)
-            r = requests.put(f"{BASE_URL}/prof/{pid}", json=payload)
+            r = api_put(f"{BASE_URL}/prof/{pid}", payload)
             if r.status_code == 200:
                 print("Professeur mis à jour.")
             else:
@@ -202,21 +234,21 @@ def menu_profs():
 
         elif choix == "5":
             pid = input("ID du prof à supprimer : ")
-            r = requests.get(f"{BASE_URL}/prof/{pid}")
+            r = api_get(f"{BASE_URL}/prof/{pid}")
             if r.status_code != 200:
                 print("Professeur introuvable.")
                 continue
             print(f"Vous allez supprimer : {r.json()['nom']}")
             confirm = input("Confirmer ? (o/N) : ")
             if confirm.lower() == "o":
-                r = requests.delete(f"{BASE_URL}/prof/{pid}")
+                r = api_delete(f"{BASE_URL}/prof/{pid}")
                 if r.status_code == 200:
                     print("Professeur supprimé.")
                 else:
                     print(f"Erreur : {r.json().get('detail', 'Inconnue')}")
 
         elif choix == "6":
-            r = requests.get(f"{BASE_URL}/prof/severe")
+            r = api_get(f"{BASE_URL}/prof/severe")
             if r.status_code == 200:
                 data = r.json()
                 if not data:
@@ -232,7 +264,7 @@ def menu_profs():
             break
         else:
             print("Choix invalide. Réessayez.")
-            
+
 # -------------- Notes -----------------
 
 def menu_notes():
@@ -246,7 +278,7 @@ def menu_notes():
         choix = input("> ")
 
         if choix == "1":
-            r = requests.get(f"{BASE_URL}/notes/")
+            r = api_get(f"{BASE_URL}/notes/")
             if r.status_code == 200:
                 print("\n=== Toutes les notes ===")
                 for n in r.json():
@@ -257,7 +289,7 @@ def menu_notes():
         elif choix == "2":
             print("Types disponibles : eleve, prof, cours, promotion")
             par = input("Type : ")
-            r = requests.get(f"{BASE_URL}/note?par={par}")
+            r = api_get(f"{BASE_URL}/note?par={par}")
             if r.status_code == 200:
                 print(f"\n=== Notes par {par} ===")
                 for cle, notes in r.json().items():
@@ -268,9 +300,9 @@ def menu_notes():
                 print(f"Erreur : {r.json().get('detail', 'Inconnue')}")
 
         elif choix == "3":
-            re = requests.get(f"{BASE_URL}/eleve/")
-            rc = requests.get(f"{BASE_URL}/cours/")
-            rp = requests.get(f"{BASE_URL}/prof/")
+            re = api_get(f"{BASE_URL}/eleve/")
+            rc = api_get(f"{BASE_URL}/cours/")
+            rp = api_get(f"{BASE_URL}/prof/")
             if re.status_code == 200:
                 print("\nÉlèves disponibles :")
                 for e in re.json():
@@ -287,7 +319,7 @@ def menu_notes():
             cours_id = int(input("ID Cours : "))
             prof_id = int(input("ID Prof : "))
             note = float(input("Note (0-20) : "))
-            r = requests.post(f"{BASE_URL}/note/", json={
+            r = api_post(f"{BASE_URL}/note/", {
                 "eleve_id": eleve_id, "cours_id": cours_id, "prof_id": prof_id, "note": note
             })
             if r.status_code == 201:
@@ -297,13 +329,13 @@ def menu_notes():
 
         elif choix == "4":
             nid = input("ID de la note à modifier : ")
-            r = requests.get(f"{BASE_URL}/note/{nid}")
+            r = api_get(f"{BASE_URL}/note/{nid}")
             if r.status_code != 200:
                 print("Note introuvable.")
                 continue
             print(f"Note actuelle : {r.json()['note']}/20")
             nouvelle = float(input("Nouvelle note (doit être >= note actuelle) : "))
-            r = requests.put(f"{BASE_URL}/note/{nid}", json={"note": nouvelle})
+            r = api_put(f"{BASE_URL}/note/{nid}", {"note": nouvelle})
             if r.status_code == 200:
                 print("Note mise à jour.")
             else:
@@ -313,7 +345,6 @@ def menu_notes():
             break
         else:
             print("Choix invalide. Réessayez.")
-
 
 # -------------- Dossiers -----------------
 
@@ -327,7 +358,7 @@ def menu_dossiers():
 
         if choix == "1":
             eid = input("ID de l'élève : ")
-            r = requests.get(f"{BASE_URL}/dossier/{eid}")
+            r = api_get(f"{BASE_URL}/dossier/{eid}")
             if r.status_code == 200:
                 d = r.json()
                 av_t = "OUI" if d["avertissement_travail"] else "non"
@@ -341,7 +372,7 @@ def menu_dossiers():
 
         elif choix == "2":
             eid = input("ID de l'élève : ")
-            r = requests.get(f"{BASE_URL}/dossier/{eid}")
+            r = api_get(f"{BASE_URL}/dossier/{eid}")
             if r.status_code != 200:
                 print("Dossier introuvable.")
                 continue
@@ -355,7 +386,7 @@ def menu_dossiers():
             if infos: payload["infos"] = infos
             if avt: payload["avertissement_travail"] = int(avt)
             if avc: payload["avertissement_comportement"] = int(avc)
-            r = requests.put(f"{BASE_URL}/dossier/{eid}", json=payload)
+            r = api_put(f"{BASE_URL}/dossier/{eid}", payload)
             if r.status_code == 200:
                 print("Dossier mis à jour.")
             else:
@@ -366,7 +397,7 @@ def menu_dossiers():
         else:
             print("Choix invalide. Réessayez.")
 
-# -------------- Cours -----------------─
+# -------------- Cours -----------------
 
 def menu_instances_cours():
     while True:
@@ -380,7 +411,7 @@ def menu_instances_cours():
         choix = input("> ")
 
         if choix == "1":
-            r = requests.get(f"{BASE_URL}/instance_cours/")
+            r = api_get(f"{BASE_URL}/instance_cours/")
             if r.status_code == 200:
                 print("\n=== Instances de cours ===")
                 for ic in r.json():
@@ -390,7 +421,7 @@ def menu_instances_cours():
 
         elif choix == "2":
             iid = input("ID de l'instance : ")
-            r = requests.get(f"{BASE_URL}/instance_cours/{iid}")
+            r = api_get(f"{BASE_URL}/instance_cours/{iid}")
             if r.status_code == 200:
                 ic = r.json()
                 print(f"\nID: {ic['id']} | Cours ID: {ic['cours_id']} | Prof ID: {ic['prof_id']} | Date: {ic['date']}")
@@ -398,8 +429,8 @@ def menu_instances_cours():
                 print("Instance introuvable.")
 
         elif choix == "3":
-            rc = requests.get(f"{BASE_URL}/cours/")
-            rp = requests.get(f"{BASE_URL}/prof/")
+            rc = api_get(f"{BASE_URL}/cours/")
+            rp = api_get(f"{BASE_URL}/prof/")
             if rc.status_code == 200:
                 print("\nCours disponibles :")
                 for c in rc.json():
@@ -411,7 +442,7 @@ def menu_instances_cours():
             cours_id = int(input("\nID Cours : "))
             prof_id = int(input("ID Prof : "))
             date = input("Date (YYYY-MM-DD HH:MM:SS) : ")
-            r = requests.post(f"{BASE_URL}/instance_cours/", json={
+            r = api_post(f"{BASE_URL}/instance_cours/", {
                 "cours_id": cours_id, "prof_id": prof_id, "date": date
             })
             if r.status_code == 201:
@@ -421,7 +452,7 @@ def menu_instances_cours():
 
         elif choix == "4":
             iid = input("ID de l'instance à modifier : ")
-            r = requests.get(f"{BASE_URL}/instance_cours/{iid}")
+            r = api_get(f"{BASE_URL}/instance_cours/{iid}")
             if r.status_code != 200:
                 print("Instance introuvable.")
                 continue
@@ -435,7 +466,7 @@ def menu_instances_cours():
             if cours_id: payload["cours_id"] = int(cours_id)
             if prof_id: payload["prof_id"] = int(prof_id)
             if date: payload["date"] = date
-            r = requests.put(f"{BASE_URL}/instance_cours/{iid}", json=payload)
+            r = api_put(f"{BASE_URL}/instance_cours/{iid}", payload)
             if r.status_code == 200:
                 print("Instance mise à jour.")
             else:
@@ -445,7 +476,7 @@ def menu_instances_cours():
             iid = input("ID de l'instance à supprimer : ")
             confirm = input("Confirmer la suppression ? (o/N) : ")
             if confirm.lower() == "o":
-                r = requests.delete(f"{BASE_URL}/instance_cours/{iid}")
+                r = api_delete(f"{BASE_URL}/instance_cours/{iid}")
                 if r.status_code == 200:
                     print("Instance supprimée.")
                 else:
@@ -455,7 +486,6 @@ def menu_instances_cours():
             break
         else:
             print("Choix invalide. Réessayez.")
-
 
 # -------------- Club -----------------
 
@@ -474,7 +504,7 @@ def menu_clubs():
         choix = input("> ")
 
         if choix == "1":
-            r = requests.get(f"{BASE_URL}/clubs/")
+            r = api_get(f"{BASE_URL}/clubs/")
             if r.status_code == 200:
                 print("\n=== Liste des clubs ===")
                 for c in r.json():
@@ -485,7 +515,7 @@ def menu_clubs():
 
         elif choix == "2":
             cid = input("ID du club : ")
-            r = requests.get(f"{BASE_URL}/clubs/{cid}/membres")
+            r = api_get(f"{BASE_URL}/clubs/{cid}/membres")
             if r.status_code == 200:
                 d = r.json()
                 print(f"\n=== Membres de {d['club']} ===")
@@ -496,7 +526,7 @@ def menu_clubs():
 
         elif choix == "3":
             cid = input("ID du club : ")
-            r = requests.get(f"{BASE_URL}/clubs/{cid}/stats")
+            r = api_get(f"{BASE_URL}/clubs/{cid}/stats")
             if r.status_code == 200:
                 d = r.json()
                 print(f"\n=== Stats de {d['club']} ===")
@@ -507,8 +537,8 @@ def menu_clubs():
                 print(f"Erreur : {r.json().get('detail', 'Inconnue')}")
 
         elif choix == "4":
-            rs = requests.get(f"{BASE_URL}/sports/")
-            rp = requests.get(f"{BASE_URL}/prof/")
+            rs = api_get(f"{BASE_URL}/sports/")
+            rp = api_get(f"{BASE_URL}/prof/")
             if rs.status_code == 200:
                 print("\nSports disponibles :")
                 for s in rs.json():
@@ -526,7 +556,7 @@ def menu_clubs():
             if resp_id: payload["responsable_id"] = int(resp_id)
             if date: payload["date_creation"] = date
             if max_m: payload["nb_membres_max"] = int(max_m)
-            r = requests.post(f"{BASE_URL}/clubs/", json=payload)
+            r = api_post(f"{BASE_URL}/clubs/", payload)
             if r.status_code == 201:
                 print(f"Club '{nom}' créé avec l'ID {r.json()['id']}.")
             else:
@@ -544,7 +574,7 @@ def menu_clubs():
             if sport_id: payload["sport_id"] = int(sport_id)
             if resp_id: payload["responsable_id"] = int(resp_id)
             if max_m: payload["nb_membres_max"] = int(max_m)
-            r = requests.put(f"{BASE_URL}/clubs/{cid}", json=payload)
+            r = api_put(f"{BASE_URL}/clubs/{cid}", payload)
             if r.status_code == 200:
                 print("Club mis à jour.")
             else:
@@ -554,7 +584,7 @@ def menu_clubs():
             cid = input("ID du club à supprimer : ")
             confirm = input("Confirmer la suppression ? (o/N) : ")
             if confirm.lower() == "o":
-                r = requests.delete(f"{BASE_URL}/clubs/{cid}")
+                r = api_delete(f"{BASE_URL}/clubs/{cid}")
                 if r.status_code == 200:
                     print("Club supprimé.")
                 else:
@@ -565,7 +595,7 @@ def menu_clubs():
             eid = input("ID de l'élève : ")
             print("Rôles disponibles : membre, capitaine, coach")
             role = input("Rôle (défaut: membre) : ") or "membre"
-            r = requests.post(f"{BASE_URL}/clubs/{cid}/membres", json={"eleve_id": int(eid), "role": role})
+            r = api_post(f"{BASE_URL}/clubs/{cid}/membres", {"eleve_id": int(eid), "role": role})
             if r.status_code == 201:
                 print("Membre ajouté au club.")
             else:
@@ -576,7 +606,7 @@ def menu_clubs():
             eid = input("ID de l'élève à retirer : ")
             confirm = input("Confirmer ? (o/N) : ")
             if confirm.lower() == "o":
-                r = requests.delete(f"{BASE_URL}/clubs/{cid}/membres/{eid}")
+                r = api_delete(f"{BASE_URL}/clubs/{cid}/membres/{eid}")
                 if r.status_code == 200:
                     print("Membre retiré du club.")
                 else:
@@ -586,7 +616,6 @@ def menu_clubs():
             break
         else:
             print("Choix invalide. Réessayez.")
-
 
 # -------------- Menue principal -----------------
 
@@ -622,4 +651,5 @@ def menu():
 
 
 if __name__ == "__main__":
-    menu()
+    if login():
+        menu()
