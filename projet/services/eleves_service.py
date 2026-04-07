@@ -145,11 +145,23 @@ def update_eleve(eleve_id, nom, email, age, promotion_id):
 def delete_eleve(eleve_id):
     conn = get_connection()
     cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM eleve WHERE id=%s", (eleve_id,))
+    if cursor.fetchone() is None:
+        return {"error": "Élève introuvable"}
+    
+    # Suppression
+    cursor.execute("DELETE FROM note WHERE eleve_id=%s", (eleve_id,))
+    cursor.execute("DELETE FROM absence WHERE eleve_id=%s", (eleve_id,))
+    cursor.execute("DELETE FROM dossier WHERE eleve_id=%s", (eleve_id,))
     cursor.execute("DELETE FROM eleve WHERE id=%s", (eleve_id,))
+
     conn.commit()
+
     cursor.close()
     conn.close()
-    return {"message": "Élève supprimé"}
+
+    return {"message": "OK"}
 
 
 

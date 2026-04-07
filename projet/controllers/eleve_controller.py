@@ -78,7 +78,7 @@ def show_eleve_page(request: Request, eleve_id: int):
 
 
 # -------- DELETE --------
-@router.get("/{eleve_id}/delete")
+@router.get("/delete/{eleve_id}")
 def delete_eleve_route(eleve_id: int):
     delete_eleve(eleve_id)
     return RedirectResponse("/eleve/", status_code=303)
