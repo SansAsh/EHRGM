@@ -73,7 +73,21 @@ def update_prof(prof_id, nom, email, age):
 def delete_prof(prof_id):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM prof WHERE id = %s", (prof_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
+
+    try:
+        # supprimer les notes liées
+        cursor.execute("DELETE FROM note WHERE prof_id=%s", (prof_id,))
+
+        # supprimer le prof
+        cursor.execute("DELETE FROM prof WHERE id=%s", (prof_id,))
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        print("ERREUR DELETE PROF:", e)
+        raise e
+
+    finally:
+        cursor.close()
+        conn.close()

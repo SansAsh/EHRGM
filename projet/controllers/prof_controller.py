@@ -23,8 +23,8 @@ def prof_new_page(request: Request):
     return templates.TemplateResponse("prof/new.html", {"request": request})
 
 @router.post("/new")
-def prof_create(nom: str = Form(...), email: str = Form(...)):
-    create_prof(nom, email)
+def prof_create(nom: str = Form(...), email: str = Form(...), age: int = Form(...)):
+    create_prof(nom, email, age)
     return RedirectResponse("/prof/", status_code=303)
 
 # ---------------- EDIT ----------------
@@ -37,12 +37,12 @@ def prof_edit_page(request: Request, prof_id: int):
     })
 
 @router.post("/{prof_id}/edit")
-def prof_update(prof_id: int, nom: str = Form(...), email: str = Form(...)):
-    update_prof(prof_id, nom, email)
+def prof_update(prof_id: int, nom: str = Form(...), email: str = Form(...), age: int = Form(...)):
+    update_prof(prof_id, nom, email, age)
     return RedirectResponse("/prof/", status_code=303)
 
 # ---------------- DELETE ----------------
-@router.get("/{prof_id}/delete")
+@router.get("/delete/{prof_id}")
 def prof_delete(prof_id: int):
     delete_prof(prof_id)
     return RedirectResponse("/prof/", status_code=303)
