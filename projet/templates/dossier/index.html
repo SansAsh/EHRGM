@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des dossiers{% endblock %}
+{% block page_title %}Dossiers{% endblock %}
+{% block breadcrumb %}Dossiers{% endblock %}
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <th>Élève ID</th>
+            <th>Avertissement Travail</th>
+            <th>Avertissement Comportement</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in dossiers %}
+        <tr>
+            <td>{{ d.eleve_id }}</td>
+            <td>{{ d.avertissement_travail }}</td>
+            <td>{{ d.avertissement_comportement }}</td>
+            <td>
+                <a class="btn-edit" href="/dossier/{{ d.eleve_id }}/edit">✏️ Modifier</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier un dossier{% endblock %}
+{% block page_title %}Modifier le dossier{% endblock %}
+{% block breadcrumb %}<a href="/dossier/">Liste des dossiers</a> / Modifier{% endblock %}
+
+{% block content %}
+<form method="post">
+    <label>ID Élève</label>
+    <input type="number" name="eleve_id" value="{{ dossier.eleve_id }}" readonly>
+
+    <label>Avertissement Travail</label>
+    <input type="number" name="avertissement_travail" value="{{ dossier.avertissement_travail }}" min="0" max="1" required>
+
+    <label>Avertissement Comportement</label>
+    <input type="number" name="avertissement_comportement" value="{{ dossier.avertissement_comportement }}" min="0" max="1" required>
+
+    <button type="submit">Modifier</button>
+</form>
+{% endblock %}
