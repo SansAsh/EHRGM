@@ -13,6 +13,7 @@
             <tr>
                 <th>Nom de l'élève</th>
                 <th>Proffeseur</th>
+                <th>Cours</th>
                 <th>Note</th>
                 <th>Actions</th>
             </tr>
@@ -22,6 +23,7 @@
             <tr>
                 <td>{{ e.eleve_nom }}</td>
                 <td>{{ e.prof_nom }}</td>
+                <td>{{ e.cours_nom }}</td>
                 <td>{{ e.note }}</td>
                 <td>
                     <a class="btn-edit" href="/note/{{ e.id }}/edit">✏️ Modifier</a>
