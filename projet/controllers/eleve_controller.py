@@ -21,7 +21,9 @@ def eleves_page(request: Request):
 # -------- AJOUT --------
 @router.get("/new", response_class=HTMLResponse)
 def new_eleve_page(request: Request):
-    return templates.TemplateResponse("eleve/new.html", {"request": request})
+    return templates.TemplateResponse("eleve/new.html", {
+        "request": request
+        })
 
 @router.post("/new")
 def create_eleve_form(

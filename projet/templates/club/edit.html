@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier un club{% endblock %}
+{% block page_title %}Modifier le club{% endblock %}
+{% block breadcrumb %}<a href="/club/">Liste des clubs</a> / Modifier{% endblock %}
+
+{% block content %}
+
+<form method="post" action="/club/{{ club.id }}/edit">
+    <label for="nom">Nom du club</label>
+    <input type="text" id="nom" name="nom" value="{{ club.nom }}" required>
+
+    <label for="sport_id">Sport</label>
+    <select id="sport_id" name="sport_id" required>
+        {% for sport in sports %}
+            <option value="{{ sport.id }}" {% if sport.id == club.sport_id %}selected{% endif %}>{{ sport.nom }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Modifier</button>
+</form>
+
+{% endblock %}
