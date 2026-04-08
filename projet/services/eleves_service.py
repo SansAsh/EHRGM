@@ -13,7 +13,6 @@ def get_all_eleves():
     return data
 
 
-
 def get_eleve_by_id(eleve_id):
     eleves = get_all_eleves()
     for eleve in eleves:
@@ -80,7 +79,7 @@ def get_bonne_notes():
                 "moyenne": round(moyenne, 2)
             })
 
-    # tri PYTHON (important ✅)
+    # tri PYTHON (important)
     result.sort(key=lambda x: x["moyenne"], reverse=True)
 
     return result

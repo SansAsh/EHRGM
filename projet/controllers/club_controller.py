@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form
+from fastapi import APIRouter, HTTPException, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 
@@ -62,5 +62,10 @@ def update_club_form(
 # -------- DELETE --------
 @router.post("/{club_id}/delete")
 def delete_club_form(club_id: int):
+    # Optionnel : vérifier si le club existe avant de supprimer
+    club = get_club_by_id(club_id)
+    if not club:
+        raise HTTPException(status_code=404, detail="Club non trouvé")
+    
     delete_club(club_id)
     return RedirectResponse("/club/", status_code=303)

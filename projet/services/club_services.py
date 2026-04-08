@@ -77,12 +77,12 @@ def update_club(club_id, nom, sport_id):
 
 
 # -------- SUPPRIMER UN CLUB --------
-def delete_club(club_id):
+def delete_club(club_id: int):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM club WHERE id = %s", (club_id,))
-
     conn.commit()
+
     cursor.close()
     conn.close()

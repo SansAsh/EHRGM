@@ -83,6 +83,7 @@ def get_eleves_moyenne_sup12():
     result.sort(key=lambda x: x["moyenne"], reverse=True)
     return result
 
+#-------- LISTER TOUS LES COURS --------
 def get_all_cours():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)

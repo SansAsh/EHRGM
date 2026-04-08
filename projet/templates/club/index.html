@@ -1,14 +1,30 @@
 {% extends "base.html" %}
 
 {% block title %}Liste des clubs{% endblock %}
-{% block page_title %}Liste des clubs <a href="/club/new" class="btn-action">➕ Ajouter un club</a>{% endblock %}
-
+{% block page_title %}
+Liste des clubs <a href="/club/new" class="btn-action">➕ Ajouter un club</a>
+{% endblock %}
 
 {% block content %}
+<script>
+function deleteClub(event, clubId) {
+    event.preventDefault(); // empêche le GET classique
+    if (!confirm("Voulez-vous vraiment supprimer ce club ?")) {
+        return; // annule si l'utilisateur clique sur "Annuler"
+    }
+
+    // Création d'un formulaire POST caché
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `/club/${clubId}/delete`;
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+
 <table>
     <thead>
         <tr>
-            <th>ID</th>
             <th>Nom</th>
             <th>Sport</th>
             <th>Actions</th>
@@ -17,12 +33,12 @@
     <tbody>
         {% for club in clubs %}
         <tr>
-            <td>{{ club.id }}</td>
             <td>{{ club.nom }}</td>
             <td>{{ club.sport_nom }}</td>
             <td>
                 <a class="btn-edit" href="/club/{{ club.id }}/edit">✏️ Modifier</a>
-                <a class="btn-delete" href="/club/delete/{{ club.id }}">🗑 Supprimer</a>
+                <!-- Le lien Supprimer utilise maintenant la fonction JS -->
+                <a class="btn-delete" href="#" onclick="deleteClub(event, '{{ club.id }}')">🗑 Supprimer</a>
             </td>
         </tr>
         {% endfor %}
